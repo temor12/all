@@ -1,0 +1,1297 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة التحكم - مدونة عصام للتقنية</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Firebase SDK -->
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-analytics.js";
+        import { getFirestore, collection, getDocs, doc, setDoc, deleteDoc, addDoc, updateDoc } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
+
+        // Your web app's Firebase configuration - UPDATED
+        const firebaseConfig = {
+            apiKey: "AIzaSyB5tZKfO84SkVuGWQvrrhdREdbJ6azzQ6M",
+            authDomain: "newall-dd7c6.firebaseapp.com",
+            projectId: "newall-dd7c6",
+            storageBucket: "newall-dd7c6.firebasestorage.app",
+            messagingSenderId: "912535071003",
+            appId: "1:912535071003:web:8975d567f5ff6a26084bbe",
+            measurementId: "G-KX6WTZMHMZ"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+        const db = getFirestore(app);
+
+        // جعل المتغيرات متاحة عالمياً
+        window.firebaseApp = app;
+        window.firebaseDB = db;
+        window.firebaseCollection = collection;
+        window.firebaseGetDocs = getDocs;
+        window.firebaseDoc = doc;
+        window.firebaseSetDoc = setDoc;
+        window.firebaseDeleteDoc = deleteDoc;
+        window.firebaseAddDoc = addDoc;
+        window.firebaseUpdateDoc = updateDoc;
+        
+        console.log('Firebase initialized successfully with new database');
+    </script>
+
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-light: #6366f1;
+            --secondary: #7c3aed;
+            --accent: #06b6d4;
+            --text: #374151;
+            --text-light: #6b7280;
+            --bg: #fafafa;
+            --card: #ffffff;
+            --header: #ffffff;
+            --border: #e5e7eb;
+            --shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            --radius: 12px;
+            --transition: all 0.3s ease;
+        }
+
+        .dark-mode {
+            --primary: #6366f1;
+            --primary-light: #818cf8;
+            --secondary: #8b5cf6;
+            --accent: #06b6d4;
+            --text: #f3f4f6;
+            --text-light: #d1d5db;
+            --bg: #0f172a;
+            --card: #1e293b;
+            --header: #1e293b;
+            --border: #374151;
+            --shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Cairo', sans-serif;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.4;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .admin-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* الهيدر */
+        .admin-header {
+            background: var(--header);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 16px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .admin-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .admin-controls {
+            display: flex;
+            gap: 10px;
+        }
+
+        .admin-btn {
+            background: var(--card);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            text-decoration: none;
+        }
+
+        .admin-btn:hover {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .admin-btn.danger {
+            background: #fee2e2;
+            color: #dc2626;
+            border-color: #fecaca;
+        }
+
+        .admin-btn.danger:hover {
+            background: #dc2626;
+            color: white;
+        }
+
+        /* الأقسام */
+        .admin-section {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow);
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 16px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        /* شبكة الأزرار في لوحة التحكم */
+        .buttons-grid-admin {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .button-card-admin {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 16px;
+            transition: var(--transition);
+        }
+
+        .button-card-admin:hover {
+            border-color: var(--primary);
+            box-shadow: var(--shadow);
+        }
+
+        .button-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .button-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .button-icon-preview {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 18px;
+        }
+
+        .button-details h4 {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .button-details span {
+            font-size: 12px;
+            color: var(--text-light);
+        }
+
+        .button-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .action-btn {
+            background: var(--card);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 12px;
+        }
+
+        .action-btn.edit:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .action-btn.delete:hover {
+            background: #ef4444;
+            color: white;
+            border-color: #ef4444;
+        }
+
+        /* النماذج */
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .form-input, .form-textarea, .form-select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            background: var(--card);
+            color: var(--text);
+            font-size: 14px;
+        }
+
+        .form-textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .submit-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+
+        .submit-btn:hover {
+            background: var(--primary-light);
+            transform: translateY(-1px);
+        }
+
+        .submit-btn.danger {
+            background: #dc2626;
+        }
+
+        .submit-btn.danger:hover {
+            background: #b91c1c;
+        }
+
+        /* قسم إضافة زر جديد */
+        .add-button-section {
+            background: var(--bg);
+            border: 2px dashed var(--border);
+            border-radius: var(--radius);
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 20px;
+            transition: var(--transition);
+        }
+
+        .add-button-section:hover {
+            border-color: var(--primary);
+        }
+
+        .add-button-btn {
+            background: none;
+            border: none;
+            color: var(--primary);
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 0 auto;
+        }
+
+        /* النوافذ المنبثقة */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 24px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            max-width: 90%;
+            width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: var(--text-light);
+            transition: var(--transition);
+        }
+
+        .close-modal:hover {
+            color: var(--primary);
+        }
+
+        /* تحسينات للشاشات الصغيرة */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            .admin-header {
+                flex-direction: column;
+                gap: 12px;
+                text-align: center;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .buttons-grid-admin {
+                grid-template-columns: 1fr;
+            }
+
+            .button-header {
+                flex-direction: column;
+                gap: 10px;
+                align-items: flex-start;
+            }
+
+            .button-actions {
+                width: 100%;
+                justify-content: space-between;
+            }
+        }
+
+        /* رسائل التنبيه */
+        .alert {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 12px 20px;
+            border-radius: 8px;
+            z-index: 3000;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            max-width: 400px;
+        }
+
+        .alert-success {
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid #a7f3d0;
+        }
+
+        .alert-error {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+        }
+
+        .alert-warning {
+            background: #fef3c7;
+            color: #92400e;
+            border: 1px solid #fde68a;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-light);
+        }
+
+        .empty-state i {
+            font-size: 48px;
+            margin-bottom: 16px;
+            color: var(--border);
+        }
+
+        .empty-state h3 {
+            font-size: 18px;
+            margin-bottom: 8px;
+        }
+
+        .empty-state p {
+            font-size: 14px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: var(--text-light);
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <!-- هيدر لوحة التحكم -->
+        <header class="admin-header">
+            <h1 class="admin-title">لوحة التحكم - إدارة الأزرار</h1>
+            <div class="admin-controls">
+                <button class="admin-btn" id="themeToggle">
+                    <i class="fas fa-moon"></i>
+                    <span>الوضع الليلي</span>
+                </button>
+                <a href="index.html" class="admin-btn">
+                    <i class="fas fa-home"></i>
+                    <span>العودة للرئيسية</span>
+                </a>
+                <button class="admin-btn danger" id="deleteAllBtn">
+                    <i class="fas fa-trash"></i>
+                    <span>حذف جميع الأزرار</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- قسم إدارة الأزرار -->
+        <section class="admin-section">
+            <h2 class="section-title">إدارة الأزرار</h2>
+            
+            <!-- زر إضافة جديد -->
+            <div class="add-button-section">
+                <button class="add-button-btn" id="addButtonBtn">
+                    <i class="fas fa-plus"></i>
+                    <span>إضافة زر جديد</span>
+                </button>
+            </div>
+
+            <!-- شبكة الأزرار -->
+            <div class="buttons-grid-admin" id="buttonsGridAdmin">
+                <div class="loading">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <p>جاري تحميل الأزرار...</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- قسم إدارة المحتوى -->
+        <section class="admin-section">
+            <h2 class="section-title">إدارة المحتوى</h2>
+            
+            <div class="form-group">
+                <label class="form-label">نص "من نحن" (العربية)</label>
+                <textarea class="form-textarea" id="aboutTextAr" placeholder="أدخل نص صفحة من نحن بالعربية"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">About Us Text (English)</label>
+                <textarea class="form-textarea" id="aboutTextEn" placeholder="Enter About Us text in English"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">نص "سياسة الخصوصية" (العربية)</label>
+                <textarea class="form-textarea" id="privacyTextAr" placeholder="أدخل نص سياسة الخصوصية بالعربية"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Privacy Policy Text (English)</label>
+                <textarea class="form-textarea" id="privacyTextEn" placeholder="Enter Privacy Policy text in English"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">نص "اتصل بنا" (العربية)</label>
+                <textarea class="form-textarea" id="contactTextAr" placeholder="أدخل نص صفحة اتصل بنا بالعربية"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Contact Us Text (English)</label>
+                <textarea class="form-textarea" id="contactTextEn" placeholder="Enter Contact Us text in English"></textarea>
+            </div>
+
+            <button class="submit-btn" id="saveContentBtn">حفظ المحتوى</button>
+        </section>
+
+        <!-- قسم إعدادات المسؤول -->
+        <section class="admin-section">
+            <h2 class="section-title">إعدادات المسؤول</h2>
+            
+            <div class="form-group">
+                <label class="form-label">تفعيل وضع المسؤول</label>
+                <div>
+                    <button class="submit-btn" id="enableAdminBtn">تفعيل وضع المسؤول</button>
+                    <button class="admin-btn" id="disableAdminBtn" style="margin-right: 10px;">تعطيل وضع المسؤول</button>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- نافذة إضافة/تعديل زر -->
+    <div class="modal" id="buttonModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="buttonModalTitle">إضافة زر جديد</h3>
+                <button class="close-modal" id="closeButtonModal">&times;</button>
+            </div>
+            <form id="buttonForm">
+                <input type="hidden" id="buttonId">
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">اسم الزر (العربية)</label>
+                        <input type="text" class="form-input" id="buttonTitleAr" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Button Title (English)</label>
+                        <input type="text" class="form-input" id="buttonTitleEn" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">الأيقونة</label>
+                    <select class="form-select" id="buttonIcon" required>
+                        <option value="">اختر أيقونة</option>
+                        <option value="fas fa-book">كتاب</option>
+                        <option value="fas fa-box-open">صندوق</option>
+                        <option value="fab fa-amazon">أمازون</option>
+                        <option value="fas fa-search">بحث</option>
+                        <option value="fas fa-recycle">إعادة تدوير</option>
+                        <option value="fas fa-images">صور</option>
+                        <option value="fas fa-music">موسيقى</option>
+                        <option value="fas fa-gamepad">ألعاب</option>
+                        <option value="fas fa-mobile-alt">تطبيقات</option>
+                        <option value="fas fa-satellite">قمر صناعي</option>
+                        <option value="fas fa-laptop">لابتوب</option>
+                        <option value="fas fa-headphones">سماعات</option>
+                        <option value="fas fa-tv">تلفاز</option>
+                        <option value="fas fa-wifi">واي فاي</option>
+                        <option value="fas fa-download">تحميل</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">الرابط</label>
+                    <input type="url" class="form-input" id="buttonUrl" placeholder="https://example.com" required>
+                </div>
+
+                <button type="submit" class="submit-btn" id="saveButtonBtn">حفظ الزر</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- نافذة تأكيد حذف جميع الأزرار -->
+    <div class="modal" id="confirmDeleteAllModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">تأكيد الحذف</h3>
+                <button class="close-modal" id="closeConfirmDeleteAllModal">&times;</button>
+            </div>
+            <div class="form-group">
+                <p>هل أنت متأكد من أنك تريد حذف <strong>جميع الأزرار</strong>؟ هذا الإجراء لا يمكن التراجع عنه.</p>
+            </div>
+            <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                <button class="admin-btn" id="cancelDeleteAllBtn">إلغاء</button>
+                <button class="submit-btn danger" id="confirmDeleteAllBtn">نعم، احذف الكل</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // بيانات التطبيق
+        let appData = {
+            buttons: [],
+            pages: {
+                about: '',
+                privacy: '',
+                contact: ''
+            },
+            pagesEn: {
+                about: '',
+                privacy: '',
+                contact: ''
+            }
+        };
+
+        // عناصر DOM
+        const themeToggle = document.getElementById('themeToggle');
+        const deleteAllBtn = document.getElementById('deleteAllBtn');
+        const addButtonBtn = document.getElementById('addButtonBtn');
+        const buttonsGridAdmin = document.getElementById('buttonsGridAdmin');
+        const buttonModal = document.getElementById('buttonModal');
+        const buttonModalTitle = document.getElementById('buttonModalTitle');
+        const closeButtonModal = document.getElementById('closeButtonModal');
+        const buttonForm = document.getElementById('buttonForm');
+        const confirmDeleteAllModal = document.getElementById('confirmDeleteAllModal');
+        const closeConfirmDeleteAllModal = document.getElementById('closeConfirmDeleteAllModal');
+        const cancelDeleteAllBtn = document.getElementById('cancelDeleteAllBtn');
+        const confirmDeleteAllBtn = document.getElementById('confirmDeleteAllBtn');
+        const saveContentBtn = document.getElementById('saveContentBtn');
+        const enableAdminBtn = document.getElementById('enableAdminBtn');
+        const disableAdminBtn = document.getElementById('disableAdminBtn');
+
+        // عناصر النماذج
+        const aboutTextAr = document.getElementById('aboutTextAr');
+        const aboutTextEn = document.getElementById('aboutTextEn');
+        const privacyTextAr = document.getElementById('privacyTextAr');
+        const privacyTextEn = document.getElementById('privacyTextEn');
+        const contactTextAr = document.getElementById('contactTextAr');
+        const contactTextEn = document.getElementById('contactTextEn');
+
+        // البيانات الافتراضية
+        const defaultButtons = [
+            { title: 'شروحات تقنية', titleEn: 'Tech Tutorials', icon: 'fas fa-book', url: '#' },
+            { title: 'منتجاتنا', titleEn: 'Our Products', icon: 'fas fa-box-open', url: '#' },
+            { title: 'بضاعة أمازون', titleEn: 'Amazon Products', icon: 'fab fa-amazon', url: '#' },
+            { title: 'رزناكي', titleEn: 'Riznaki', icon: 'fas fa-search', url: '#' },
+            { title: 'منتجات مستخدمة', titleEn: 'Used Products', icon: 'fas fa-recycle', url: '#' },
+            { title: 'صور مفيدة', titleEn: 'Useful Images', icon: 'fas fa-images', url: '#' },
+            { title: 'أورج شرقي', titleEn: 'Oriental Organ', icon: 'fas fa-music', url: '#' },
+            { title: 'ألعاب المكفوفين', titleEn: 'Blind Games', icon: 'fas fa-gamepad', url: '#' },
+            { title: 'تطبيقاتنا', titleEn: 'Our Apps', icon: 'fas fa-mobile-alt', url: '#' }
+        ];
+
+        const defaultPages = {
+            about_ar: { type: 'about', language: 'ar', content: 'مدونة عصام للتقنية منصة متخصصة في التقنية والأقمار الصناعية. نقدم شروحات تقنية متخصصة، منتجات متنوعة عالية الجودة، وخدمات متكاملة لتلبية احتياجاتكم في عالم التقنية.' },
+            about_en: { type: 'about', language: 'en', content: 'Essam Tech Blog is a specialized platform in technology and satellites. We provide specialized technical tutorials, diverse high-quality products, and integrated services to meet your needs in the world of technology.' },
+            privacy_ar: { type: 'privacy', language: 'ar', content: 'نحن ملتزمون بحماية خصوصيتكم وبياناتكم الشخصية. لا نشارك بياناتكم مع أي جهات خارجية، ونستخدم أحدث تقنيات الحماية لحماية معلوماتكم.' },
+            privacy_en: { type: 'privacy', language: 'en', content: 'We are committed to protecting your privacy and personal data. We do not share your data with any external parties, and we use the latest protection technologies to safeguard your information.' },
+            contact_ar: { type: 'contact', language: 'ar', content: 'للتواصل معنا:\nالبريد الإلكتروني: info@essam-tech.com\nالهاتف: +964 123 456 7890\nواتساب: +964 123 456 7890' },
+            contact_en: { type: 'contact', language: 'en', content: 'To contact us:\nEmail: info@essam-tech.com\nPhone: +964 123 456 7890\nWhatsApp: +964 123 456 7890' }
+        };
+
+        // إنشاء الأزرار الافتراضية تلقائياً
+        async function createDefaultButtons() {
+            console.log('جاري إنشاء الأزرار الافتراضية تلقائياً...');
+            
+            try {
+                for (const button of defaultButtons) {
+                    await window.firebaseAddDoc(window.firebaseCollection(window.firebaseDB, 'buttons'), button);
+                }
+                console.log('تم إنشاء جميع الأزرار الافتراضية بنجاح');
+                showAlert('تم إنشاء الأزرار الافتراضية تلقائياً', 'success');
+                return true;
+            } catch (error) {
+                console.error('خطأ في إنشاء الأزرار الافتراضية:', error);
+                showAlert('حدث خطأ في إنشاء الأزرار الافتراضية', 'error');
+                return false;
+            }
+        }
+
+        // إنشاء الصفحات الافتراضية تلقائياً
+        async function createDefaultPages() {
+            console.log('جاري إنشاء الصفحات الافتراضية تلقائياً...');
+            
+            try {
+                for (const [docId, pageData] of Object.entries(defaultPages)) {
+                    await window.firebaseSetDoc(window.firebaseDoc(window.firebaseDB, 'pages', docId), pageData);
+                }
+                console.log('تم إنشاء جميع الصفحات الافتراضية بنجاح');
+                showAlert('تم إنشاء الصفحات الافتراضية تلقائياً', 'success');
+                return true;
+            } catch (error) {
+                console.error('خطأ في إنشاء الصفحات الافتراضية:', error);
+                showAlert('حدث خطأ في إنشاء الصفحات الافتراضية', 'error');
+                return false;
+            }
+        }
+
+        // تحميل الأزرار بعد الإنشاء
+        async function loadButtonsAfterCreation() {
+            const buttonsSnapshot = await window.firebaseGetDocs(window.firebaseCollection(window.firebaseDB, 'buttons'));
+            const buttons = [];
+            buttonsSnapshot.forEach((doc) => {
+                buttons.push({ id: doc.id, ...doc.data() });
+            });
+            return buttons;
+        }
+
+        // تحميل الصفحات بعد الإنشاء
+        async function loadPagesAfterCreation() {
+            const pagesSnapshot = await window.firebaseGetDocs(window.firebaseCollection(window.firebaseDB, 'pages'));
+            const pages = { about: '', privacy: '', contact: '' };
+            const pagesEn = { about: '', privacy: '', contact: '' };
+            
+            pagesSnapshot.forEach((doc) => {
+                const data = doc.data();
+                if (data.language === 'ar') {
+                    pages[data.type] = data.content;
+                } else if (data.language === 'en') {
+                    pagesEn[data.type] = data.content;
+                }
+            });
+            
+            return { pages, pagesEn };
+        }
+
+        // تهيئة لوحة التحكم
+        async function initializeAdmin() {
+            console.log('جاري تهيئة لوحة التحكم مع قاعدة البيانات الجديدة...');
+            
+            // الانتظار حتى يكون Firebase جاهزاً
+            let attempts = 0;
+            const maxAttempts = 10;
+            
+            while (attempts < maxAttempts) {
+                if (window.firebaseDB) {
+                    console.log('Firebase جاهز بعد', attempts, 'محاولات');
+                    break;
+                }
+                console.log('في انتظار تهيئة Firebase...', attempts);
+                await new Promise(resolve => setTimeout(resolve, 500));
+                attempts++;
+            }
+            
+            if (!window.firebaseDB) {
+                showAlert('تعذر تهيئة Firebase. تأكد من اتصال الإنترنت وإعدادات Firebase.', 'error');
+                return;
+            }
+            
+            await loadDataFromFirebase();
+            checkAdminStatus();
+        }
+
+        // تحميل البيانات من Firebase Firestore - مع الإنشاء التلقائي
+        async function loadDataFromFirebase() {
+            console.log('جاري تحميل البيانات من قاعدة البيانات الجديدة...');
+            
+            if (!window.firebaseDB) {
+                console.error('Firebase DB غير متوفر');
+                showAlert('خطأ: قاعدة البيانات غير متوفرة', 'error');
+                return;
+            }
+
+            try {
+                // تحميل الأزرار
+                let buttons = [];
+                try {
+                    const buttonsSnapshot = await window.firebaseGetDocs(window.firebaseCollection(window.firebaseDB, 'buttons'));
+                    buttonsSnapshot.forEach((doc) => {
+                        buttons.push({ id: doc.id, ...doc.data() });
+                    });
+                    console.log('تم تحميل الأزرار:', buttons.length);
+                    
+                    // إذا لم توجد أزرار، إنشئها تلقائياً
+                    if (buttons.length === 0) {
+                        console.log('لا توجد أزرار، جاري الإنشاء التلقائي...');
+                        await createDefaultButtons();
+                        buttons = await loadButtonsAfterCreation();
+                    }
+                } catch (buttonsError) {
+                    console.error('خطأ في تحميل الأزرار:', buttonsError);
+                    // حاول إنشاء الأزرار الافتراضية
+                    await createDefaultButtons();
+                    buttons = await loadButtonsAfterCreation();
+                }
+
+                // تحميل الصفحات
+                let pages = { about: '', privacy: '', contact: '' };
+                let pagesEn = { about: '', privacy: '', contact: '' };
+                
+                try {
+                    const pagesSnapshot = await window.firebaseGetDocs(window.firebaseCollection(window.firebaseDB, 'pages'));
+                    let pagesFound = false;
+                    
+                    pagesSnapshot.forEach((doc) => {
+                        const data = doc.data();
+                        if (data.language === 'ar') {
+                            pages[data.type] = data.content;
+                        } else if (data.language === 'en') {
+                            pagesEn[data.type] = data.content;
+                        }
+                        pagesFound = true;
+                    });
+                    
+                    console.log('تم تحميل الصفحات:', pagesFound);
+                    
+                    // إذا لم توجد صفحات، إنشئها تلقائياً
+                    if (!pagesFound || !pages.about) {
+                        console.log('لا توجد صفحات، جاري الإنشاء التلقائي...');
+                        await createDefaultPages();
+                        // إعادة تحميل الصفحات بعد الإنشاء
+                        const pagesData = await loadPagesAfterCreation();
+                        pages = pagesData.pages;
+                        pagesEn = pagesData.pagesEn;
+                    }
+                } catch (pagesError) {
+                    console.error('خطأ في تحميل الصفحات:', pagesError);
+                    // حاول إنشاء الصفحات الافتراضية
+                    await createDefaultPages();
+                    const pagesData = await loadPagesAfterCreation();
+                    pages = pagesData.pages;
+                    pagesEn = pagesData.pagesEn;
+                }
+                
+                appData.buttons = buttons;
+                appData.pages = pages;
+                appData.pagesEn = pagesEn;
+                
+                loadButtons();
+                loadContent();
+                
+                console.log('تم تحميل البيانات بنجاح من القاعدة الجديدة');
+                
+            } catch (error) {
+                console.error('خطأ عام في تحميل البيانات:', error);
+                showAlert('حدث خطأ في تحميل البيانات: ' + error.message, 'error');
+            }
+        }
+
+        // تحميل الأزرار في الواجهة
+        function loadButtons() {
+            console.log('جاري تحميل الأزرار في الواجهة:', appData.buttons);
+            
+            buttonsGridAdmin.innerHTML = '';
+            
+            if (appData.buttons.length === 0) {
+                buttonsGridAdmin.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-inbox"></i>
+                        <h3>لا توجد أزرار</h3>
+                        <p>لم يتم إضافة أي أزرار بعد. انقر على "إضافة زر جديد" لبدء الإضافة.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            appData.buttons.forEach(button => {
+                const buttonCard = document.createElement('div');
+                buttonCard.className = 'button-card-admin';
+                buttonCard.innerHTML = `
+                    <div class="button-header">
+                        <div class="button-info">
+                            <div class="button-icon-preview">
+                                <i class="${button.icon}"></i>
+                            </div>
+                            <div class="button-details">
+                                <h4>${button.title}</h4>
+                                <span>${button.titleEn}</span>
+                            </div>
+                        </div>
+                        <div class="button-actions">
+                            <button class="action-btn edit" data-id="${button.id}">
+                                <i class="fas fa-edit"></i> تعديل
+                            </button>
+                            <button class="action-btn delete" data-id="${button.id}">
+                                <i class="fas fa-trash"></i> حذف
+                            </button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">الرابط:</label>
+                        <input type="text" class="form-input" value="${button.url}" readonly>
+                    </div>
+                `;
+                buttonsGridAdmin.appendChild(buttonCard);
+            });
+
+            // إضافة مستمعي الأحداث للأزرار بعد تحميلها
+            document.querySelectorAll('.action-btn.edit').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const buttonId = this.getAttribute('data-id');
+                    console.log('تعديل الزر:', buttonId);
+                    editButton(buttonId);
+                });
+            });
+
+            document.querySelectorAll('.action-btn.delete').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const buttonId = this.getAttribute('data-id');
+                    console.log('حذف الزر:', buttonId);
+                    deleteButton(buttonId);
+                });
+            });
+        }
+
+        // تحميل المحتوى في النماذج
+        function loadContent() {
+            aboutTextAr.value = appData.pages.about || '';
+            aboutTextEn.value = appData.pagesEn.about || '';
+            privacyTextAr.value = appData.pages.privacy || '';
+            privacyTextEn.value = appData.pagesEn.privacy || '';
+            contactTextAr.value = appData.pages.contact || '';
+            contactTextEn.value = appData.pagesEn.contact || '';
+        }
+
+        // فتح نافذة إضافة زر
+        addButtonBtn.addEventListener('click', function() {
+            buttonModalTitle.textContent = 'إضافة زر جديد';
+            buttonForm.reset();
+            document.getElementById('buttonId').value = '';
+            buttonModal.style.display = 'flex';
+        });
+
+        // إغلاق نافذة الزر
+        closeButtonModal.addEventListener('click', function() {
+            buttonModal.style.display = 'none';
+        });
+
+        // حفظ الزر في قاعدة البيانات الجديدة
+        async function saveButtonToFirebase(buttonData) {
+            console.log('جاري حفظ الزر في القاعدة الجديدة:', buttonData);
+            
+            if (window.firebaseDB && window.firebaseSetDoc && window.firebaseDoc) {
+                try {
+                    if (buttonData.id) {
+                        // تحديث زر موجود
+                        console.log('تحديث زر موجود:', buttonData.id);
+                        await window.firebaseSetDoc(window.firebaseDoc(window.firebaseDB, 'buttons', buttonData.id), {
+                            title: buttonData.title,
+                            titleEn: buttonData.titleEn,
+                            icon: buttonData.icon,
+                            url: buttonData.url
+                        });
+                        console.log('تم تحديث الزر بنجاح في القاعدة الجديدة');
+                    } else {
+                        // إضافة زر جديد
+                        console.log('إضافة زر جديد في القاعدة الجديدة');
+                        const docRef = await window.firebaseAddDoc(window.firebaseCollection(window.firebaseDB, 'buttons'), {
+                            title: buttonData.title,
+                            titleEn: buttonData.titleEn,
+                            icon: buttonData.icon,
+                            url: buttonData.url
+                        });
+                        buttonData.id = docRef.id;
+                        console.log('تم إضافة الزر بنجاح في القاعدة الجديدة:', docRef.id);
+                    }
+                    return true;
+                } catch (error) {
+                    console.error('خطأ في حفظ الزر في القاعدة الجديدة:', error);
+                    return false;
+                }
+            } else {
+                console.error('Firebase غير متوفر');
+                return false;
+            }
+        }
+
+        // حفظ الزر
+        buttonForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const buttonId = document.getElementById('buttonId').value;
+            const titleAr = document.getElementById('buttonTitleAr').value;
+            const titleEn = document.getElementById('buttonTitleEn').value;
+            const icon = document.getElementById('buttonIcon').value;
+            const url = document.getElementById('buttonUrl').value;
+
+            const buttonData = {
+                title: titleAr,
+                titleEn: titleEn,
+                icon: icon,
+                url: url
+            };
+
+            if (buttonId) {
+                buttonData.id = buttonId;
+            }
+
+            const success = await saveButtonToFirebase(buttonData);
+            if (success) {
+                showAlert('تم حفظ الزر بنجاح في قاعدة البيانات الجديدة!', 'success');
+                loadDataFromFirebase();
+                buttonModal.style.display = 'none';
+            } else {
+                showAlert('حدث خطأ في حفظ الزر في قاعدة البيانات الجديدة. يرجى المحاولة مرة أخرى.', 'error');
+            }
+        });
+
+        // تعديل زر
+        function editButton(buttonId) {
+            console.log('جاري تحميل بيانات الزر للتعديل:', buttonId);
+            const button = appData.buttons.find(btn => btn.id === buttonId);
+            if (button) {
+                buttonModalTitle.textContent = 'تعديل الزر';
+                document.getElementById('buttonId').value = button.id;
+                document.getElementById('buttonTitleAr').value = button.title;
+                document.getElementById('buttonTitleEn').value = button.titleEn;
+                document.getElementById('buttonIcon').value = button.icon;
+                document.getElementById('buttonUrl').value = button.url;
+                buttonModal.style.display = 'flex';
+                console.log('تم تحميل بيانات الزر:', button);
+            } else {
+                console.error('لم يتم العثور على الزر:', buttonId);
+                showAlert('لم يتم العثور على الزر المطلوب', 'error');
+            }
+        }
+
+        // حذف زر من قاعدة البيانات الجديدة
+        async function deleteButtonFromFirebase(buttonId) {
+            console.log('جاري حذف الزر من القاعدة الجديدة:', buttonId);
+            
+            if (window.firebaseDB && window.firebaseDeleteDoc && window.firebaseDoc) {
+                try {
+                    await window.firebaseDeleteDoc(window.firebaseDoc(window.firebaseDB, 'buttons', buttonId));
+                    console.log('تم حذف الزر بنجاح من القاعدة الجديدة');
+                    return true;
+                } catch (error) {
+                    console.error('خطأ في حذف الزر من القاعدة الجديدة:', error);
+                    return false;
+                }
+            } else {
+                console.error('Firebase غير متوفر');
+                return false;
+            }
+        }
+
+        // حذف زر
+        async function deleteButton(buttonId) {
+            if (confirm('هل أنت متأكد من حذف هذا الزر؟')) {
+                const success = await deleteButtonFromFirebase(buttonId);
+                if (success) {
+                    showAlert('تم حذف الزر بنجاح من قاعدة البيانات الجديدة!', 'success');
+                    loadDataFromFirebase();
+                } else {
+                    showAlert('حدث خطأ في حذف الزر من قاعدة البيانات الجديدة. يرجى المحاولة مرة أخرى.', 'error');
+                }
+            }
+        }
+
+        // حذف جميع الأزرار من قاعدة البيانات الجديدة
+        async function deleteAllButtonsFromFirebase() {
+            console.log('جاري حذف جميع الأزرار من القاعدة الجديدة');
+            
+            if (window.firebaseDB && window.firebaseDeleteDoc && window.firebaseDoc && window.firebaseGetDocs && window.firebaseCollection) {
+                try {
+                    const buttonsSnapshot = await window.firebaseGetDocs(window.firebaseCollection(window.firebaseDB, 'buttons'));
+                    
+                    const deletePromises = [];
+                    buttonsSnapshot.forEach((doc) => {
+                        deletePromises.push(window.firebaseDeleteDoc(window.firebaseDoc(window.firebaseDB, 'buttons', doc.id)));
+                    });
+                    
+                    await Promise.all(deletePromises);
+                    console.log('تم حذف جميع الأزرار بنجاح من القاعدة الجديدة');
+                    return true;
+                } catch (error) {
+                    console.error('خطأ في حذف جميع الأزرار من القاعدة الجديدة:', error);
+                    return false;
+                }
+            } else {
+                console.error('Firebase غير متوفر');
+                return false;
+            }
+        }
+
+        // فتح نافذة تأكيد حذف جميع الأزرار
+        deleteAllBtn.addEventListener('click', function() {
+            if (appData.buttons.length === 0) {
+                showAlert('لا توجد أزرار لحذفها', 'warning');
+                return;
+            }
+            confirmDeleteAllModal.style.display = 'flex';
+        });
+
+        // إغلاق نافذة تأكيد الحذف
+        closeConfirmDeleteAllModal.addEventListener('click', function() {
+            confirmDeleteAllModal.style.display = 'none';
+        });
+
+        cancelDeleteAllBtn.addEventListener('click', function() {
+            confirmDeleteAllModal.style.display = 'none';
+        });
+
+        // تأكيد حذف جميع الأزرار
+        confirmDeleteAllBtn.addEventListener('click', async function() {
+            confirmDeleteAllModal.style.display = 'none';
+            
+            const success = await deleteAllButtonsFromFirebase();
+            if (success) {
+                showAlert('تم حذف جميع الأزرار بنجاح من قاعدة البيانات الجديدة!', 'success');
+                appData.buttons = [];
+                loadButtons();
+            } else {
+                showAlert('حدث خطأ في حذف الأزرار من قاعدة البيانات الجديدة. يرجى المحاولة مرة أخرى.', 'error');
+            }
+        });
+
+        // حفظ المحتوى في قاعدة البيانات الجديدة
+        async function savePagesToFirebase() {
+            console.log('جاري حفظ المحتوى في القاعدة الجديدة');
+            
+            if (window.firebaseDB && window.firebaseSetDoc && window.firebaseDoc) {
+                try {
+                    // حفظ النصوص العربية
+                    await window.firebaseSetDoc(window.firebaseDoc(window.firebaseDB, 'pages', 'about_ar'), {
+                        type: 'about',
+                        language: 'ar',
+                        content: aboutTextAr.value
+                    });
+                    await window.firebaseSetDoc(window.firebaseDoc(window.firebaseDB, 'pages', 'privacy_ar'), {
+                        type: 'privacy',
+                        language: 'ar',
+                        content: privacyTextAr.value
+                    });
+                    await window.firebaseSetDoc(window.firebaseDoc(window.firebaseDB, 'pages', 'contact_ar'), {
+                        type: 'contact',
+                        language: 'ar',
+                        content: contactTextAr.value
+                    });
+
+                    // حفظ النصوص الإنجليزية
+                    await window.firebaseSetDoc(window.firebaseDoc(window.firebaseDB, 'pages', 'about_en'), {
+                        type: 'about',
+                        language: 'en',
+                        content: aboutTextEn.value
+                    });
+                    await window.firebaseSetDoc(window.firebaseDoc(window.firebaseDB, 'pages', 'privacy_en'), {
+                        type: 'privacy',
+                        language: 'en',
+                        content: privacyTextEn.value
+                    });
+                    await window.firebaseSetDoc(window.firebaseDoc(window.firebaseDB, 'pages', 'contact_en'), {
+                        type: 'contact',
+                        language: 'en',
+                        content: contactTextEn.value
+                    });
+
+                    console.log('تم حفظ المحتوى بنجاح في القاعدة الجديدة');
+                    return true;
+                } catch (error) {
+                    console.error('خطأ في حفظ الصفحات في القاعدة الجديدة:', error);
+                    return false;
+                }
+            } else {
+                console.error('Firebase غير متوفر');
+                return false;
+            }
+        }
+
+        // حفظ المحتوى
+        saveContentBtn.addEventListener('click', async function() {
+            const success = await savePagesToFirebase();
+            if (success) {
+                showAlert('تم حفظ المحتوى بنجاح في قاعدة البيانات الجديدة!', 'success');
+            } else {
+                showAlert('حدث خطأ في حفظ المحتوى في قاعدة البيانات الجديدة. يرجى المحاولة مرة أخرى.', 'error');
+            }
+        });
+
+        // تفعيل وضع المسؤول
+        enableAdminBtn.addEventListener('click', function() {
+            localStorage.setItem('essamTechAdmin', 'true');
+            showAlert('تم تفعيل وضع المسؤول! سيظهر زر لوحة التحكم في الصفحة الرئيسية.', 'success');
+            checkAdminStatus();
+        });
+
+        // تعطيل وضع المسؤول
+        disableAdminBtn.addEventListener('click', function() {
+            localStorage.setItem('essamTechAdmin', 'false');
+            showAlert('تم تعطيل وضع المسؤول!', 'success');
+            checkAdminStatus();
+        });
+
+        // التحقق من حالة المسؤول
+        function checkAdminStatus() {
+            const isAdmin = localStorage.getItem('essamTechAdmin') === 'true';
+            if (isAdmin) {
+                enableAdminBtn.disabled = true;
+                disableAdminBtn.disabled = false;
+            } else {
+                enableAdminBtn.disabled = false;
+                disableAdminBtn.disabled = true;
+            }
+        }
+
+        // تبديل الوضع الليلي
+        themeToggle.addEventListener('click', function() {
+            document.body.classList.toggle('dark-mode');
+            themeToggle.innerHTML = document.body.classList.contains('dark-mode') 
+                ? '<i class="fas fa-sun"></i><span>الوضع النهاري</span>' 
+                : '<i class="fas fa-moon"></i><span>الوضع الليلي</span>';
+        });
+
+        // إغلاق النوافذ عند النقر خارجها
+        window.addEventListener('click', function(e) {
+            if (e.target === buttonModal) {
+                buttonModal.style.display = 'none';
+            }
+            if (e.target === confirmDeleteAllModal) {
+                confirmDeleteAllModal.style.display = 'none';
+            }
+        });
+
+        // عرض رسائل التنبيه
+        function showAlert(message, type) {
+            // إزالة أي رسالة سابقة
+            const existingAlert = document.querySelector('.alert');
+            if (existingAlert) {
+                existingAlert.remove();
+            }
+
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type}`;
+            alert.innerHTML = `
+                <i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-exclamation-triangle'}"></i>
+                <span>${message}</span>
+            `;
+
+            // إضافة الرسالة في أعلى الصفحة
+            document.body.appendChild(alert);
+
+            // إزالة الرسالة بعد 5 ثواني
+            setTimeout(() => {
+                alert.remove();
+            }, 5000);
+        }
+
+        // تهيئة لوحة التحكم عند التحميل
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('تم تحميل الصفحة، جاري تهيئة لوحة التحكم مع قاعدة البيانات الجديدة...');
+            initializeAdmin();
+        });
+    </script>
+</body>
+</html>
